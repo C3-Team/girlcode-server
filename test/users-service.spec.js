@@ -54,6 +54,17 @@ describe("users service object", function () {
         });
       });
     });
+
+    it(`deleteUser() removes a user by id from 'users' table`, () => {
+      const userId = 3;
+      return UsersService.deleteUser(db, userId)
+        .then(() => UsersService.getAllUsers(db))
+        .then((allUsers) => {
+          // copy the test articles array without the "deleted" article
+          const expected = testUsers.filter((user) => user.id !== userId);
+          expect(allUsers).to.eql(expected);
+        });
+    });
   });
   context(`Given 'users' has no data`, () => {
     it(`getAllUsers() resolves an empty array`, () => {
