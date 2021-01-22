@@ -33,13 +33,25 @@ describe("users service object", function () {
   after(() => db.destroy());
 
   context(`Given 'users' has data`, () => {
-    before(() => {
+    beforeEach(() => {
       return db.into("users").insert(testUsers);
     });
 
-    it(`getAllUsers() resolves all articles from 'users' table`, () => {
+    it(`getAllUsers() resolves all users from 'users' table`, () => {
       return UsersService.getAllUsers(db).then((actual) => {
         expect(actual).to.eql(testUsers);
+      });
+    });
+    it(`getById() resolves a user by id from 'users' table`, () => {
+      const thirdId = 3;
+      const thirdTestUser = testUsers[thirdId - 1];
+      return UsersService.getById(db, thirdId).then((actual) => {
+        expect(actual).to.eql({
+          id: thirdId,
+          user_name: thirdTestUser.user_name,
+          user_email: thirdTestUser.user_email,
+          user_password: thirdTestUser.user_password,
+        });
       });
     });
   });
