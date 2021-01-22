@@ -65,6 +65,23 @@ describe("users service object", function () {
           expect(allUsers).to.eql(expected);
         });
     });
+
+    it(`updateUser() updates a user from the 'users' table`, () => {
+      const idOfUserToUpdate = 3;
+      const newUserData = {
+        user_name: "updated name",
+        user_email: "updated email",
+        user_password: "new password",
+      };
+      return UsersService.updateUser(db, idOfUserToUpdate, newUserData)
+        .then(() => UsersService.getById(db, idOfUserToUpdate))
+        .then((user) => {
+          expect(user).to.eql({
+            id: idOfUserToUpdate,
+            ...newUserData,
+          });
+        });
+    });
   });
   context(`Given 'users' has no data`, () => {
     it(`getAllUsers() resolves an empty array`, () => {
