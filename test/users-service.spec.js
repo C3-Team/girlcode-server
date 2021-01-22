@@ -29,15 +29,33 @@ describe("users service object", function () {
     });
   });
   before(() => db("users").truncate());
-  before(() => {
-    return db.into("users").insert(testUsers);
-  });
+  afterEach(() => db("users").truncate());
   after(() => db.destroy());
-  describe("getAllUsers()", () => {
-    it("resolves all users from 'users' table", () => {
+
+  context(`Given 'users' has data`, () => {
+    before(() => {
+      return db.into("users").insert(testUsers);
+    });
+
+    it(`getAllUsers() resolves all articles from 'users' table`, () => {
       return UsersService.getAllUsers(db).then((actual) => {
         expect(actual).to.eql(testUsers);
       });
+    });
+  });
+  context(`Given 'users' has no data`, () => {
+    it(`getAllUsers() resolves an empty array`, () => {
+      return UsersService.getAllUsers(db).then((actual) => {
+        expect(actual).to.eql([]);
+      });
+    });
+    it(`insertArticle() inserts a new article and resolves the new user with an 'id'`, () => {
+      const newUser = {
+        user_name: "new user",
+        user_email: "new email",
+        user_password: "new pass",
+      };
+      return UsersService.insertUser(db, newUser);
     });
   });
 });
