@@ -8,9 +8,9 @@ const jsonParser = express.json();
 
 const serializeUser = (user) => ({
   id: user.id,
-  username: xss(user.username),
-  email: xss(user.email),
-  password: xss(user.password),
+  user_name: xss(user.user_name),
+  user_email: xss(user.user_email),
+  user_password: xss(user.user_password),
 });
 
 usersRouter
@@ -24,9 +24,8 @@ usersRouter
       .catch(next);
   })
   .post(jsonParser, (req, res, next) => {
-    const { user_name, email, password } = req.body;
-    const newUser = { user_name, email, password };
-
+    const { user_name, user_email, user_password } = req.body;
+    const newUser = { user_name, user_email, user_password };
     for (const [key, value] of Object.entries(newUser)) {
       if (value == null) {
         return res.status(400).json({
@@ -35,7 +34,7 @@ usersRouter
       }
     }
     newUser.user_name = user_name;
-    newUser.password = password;
+    newUser.password = user_password;
 
     UsersService.insertUser(req.app.get("db"), newUser)
       .then((user) => {
