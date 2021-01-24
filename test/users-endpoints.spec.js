@@ -1,8 +1,9 @@
 const { expect } = require("chai");
 const knex = require("knex");
+const supertest = require("supertest");
 const app = require("../src/app");
 
-describe.only("Users Endpoints", function () {
+describe("Users Endpoints", function () {
   let db;
 
   before("make knex instance", () => {
@@ -16,6 +17,8 @@ describe.only("Users Endpoints", function () {
   after("disconnect from db", () => db.destroy());
 
   before("clean the table", () => db("users").truncate());
+
+  afterEach("cleanup", () => db("users").truncate());
 
   context("Given there are users in the database", () => {
     const testUsers = [
@@ -51,5 +54,32 @@ describe.only("Users Endpoints", function () {
     it("GET /users responds with 200 and all of the users", () => {
       return supertest(app).get("/users").expect(200, testUsers);
     });
+    it("Get /users/:user_id responds with 200 and the specific article", () => {
+      const userId = 2;
+      const expectedUser = testUsers[userId - 1];
+      return supertest(app).get(`/users/${userId}`).expect(200, expectedUser);
+    });
+  });
+});
+describe.only(`POST /users`, () => {
+  it(`creates a user, responding with 201 and the new user`, function () {
+    const newUser = {
+      user_name: "test new user",
+      user_email: "test email",
+      user_password: "test password",
+    };
+    return supertest(app)
+      .post("/users")
+      .send(newUser)
+      .expect(201)
+      .expect((res) => {
+        expect(res.body.title).to.eql(newUser.user_name);
+        expect(res.body.style).to.eql(newUser.user_email);
+        expect(res.body.content).to.eql(newUser.user_password);
+        expect(res.body).to.have.property("id");
+      })
+      .then((postRes) =>
+        supertest(app).get(`/users/${postRes.bod.id}`).expect(postRes.body)
+      );
   });
 });

@@ -89,7 +89,7 @@ describe("users service object", function () {
         expect(actual).to.eql([]);
       });
     });
-    it(`insertArticle() inserts a new article and resolves the new user with an 'id'`, () => {
+    it(`insertUser() inserts a new article and resolves the new user with an 'id'`, () => {
       const newUser = {
         user_name: "new user",
         user_email: "new email",

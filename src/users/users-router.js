@@ -26,22 +26,9 @@ usersRouter
   .post(jsonParser, (req, res, next) => {
     const { user_name, user_email, user_password } = req.body;
     const newUser = { user_name, user_email, user_password };
-    for (const [key, value] of Object.entries(newUser)) {
-      if (value == null) {
-        return res.status(400).json({
-          error: { message: `Missing '${key}' in request body` },
-        });
-      }
-    }
-    newUser.user_name = user_name;
-    newUser.password = user_password;
-
     UsersService.insertUser(req.app.get("db"), newUser)
       .then((user) => {
-        res
-          .status(201)
-          .location(path.posix.join(req.originalUrl, `/${user.id}`))
-          .json(serializeUser(user));
+        res.status(201).json(user);
       })
       .catch(next);
   });
@@ -71,8 +58,8 @@ usersRouter
       .catch(next);
   })
   .patch(jsonParser, (req, res, next) => {
-    const { user_name, email, password } = req.body;
-    const userToUpdate = { user_name, email, password };
+    const { user_name, user_email, user_password } = req.body;
+    const userToUpdate = { user_name, user_email, user_password };
 
     const numberOfValues = Object.values(userToUpdate).filter(Boolean).length;
     if (numberOfValues === 0)
