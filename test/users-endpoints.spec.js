@@ -63,6 +63,7 @@ describe("Users Endpoints", function () {
 });
 describe.only(`POST /users`, () => {
   it(`creates a user, responding with 201 and the new user`, function () {
+    this.retries(3);
     const newUser = {
       user_name: "test new user",
       user_email: "test email",
@@ -77,6 +78,7 @@ describe.only(`POST /users`, () => {
         expect(res.body.style).to.eql(newUser.user_email);
         expect(res.body.content).to.eql(newUser.user_password);
         expect(res.body).to.have.property("id");
+        expect(res.headers.location).to.eql(`/users/${res.body.id}`);
       })
       .then((postRes) =>
         supertest(app).get(`/users/${postRes.bod.id}`).expect(postRes.body)

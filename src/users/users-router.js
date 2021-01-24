@@ -26,9 +26,19 @@ usersRouter
   .post(jsonParser, (req, res, next) => {
     const { user_name, user_email, user_password } = req.body;
     const newUser = { user_name, user_email, user_password };
+
+    for (const [key, value] of Object.entries(newUser)) {
+      if (value == null) {
+        return res.status(400).json({
+          error: {
+            message: `Missing '${key}' in request body `,
+          },
+        });
+      }
+    }
     UsersService.insertUser(req.app.get("db"), newUser)
       .then((user) => {
-        res.status(201).json(user);
+        res.status(201).location(`/users/${user.id}`).json(user);
       })
       .catch(next);
   });
@@ -39,7 +49,7 @@ usersRouter
       .then((user) => {
         if (!user) {
           return res.status(404).json({
-            error: { message: `User doesn't exist` },
+            error: { message: "User doesn't exist" },
           });
         }
         res.user = user;
@@ -65,7 +75,8 @@ usersRouter
     if (numberOfValues === 0)
       return res.status(400).json({
         error: {
-          message: `Request body must contain either 'user_name', 'email', 'password'`,
+          message:
+            "Request body must contain either 'user_name', 'email', 'password'",
         },
       });
     UsersService.updateUser(req.app.get("db"), req.params.user_id, userToUpdate)
