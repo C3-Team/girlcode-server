@@ -1,4 +1,5 @@
-INSERT INTO inventory(tampon,pad,users,date_published) 
+INSERT INTO inventories (user_name, email, pads, tampons,zipcode) 
 VALUES 
-(10, 15,1, now()),
-(4,3,2,now())
+('nikadarab','nikadarabaa@pm.me', 10,1,'78767'),
+('pegahdarab','pegdfdfdah@gmail.com',13,13,'76878'),
+('uchaabbah', 'uchadfdfdf@gmail.com',13,15,'76567')

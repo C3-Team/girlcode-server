@@ -7,16 +7,21 @@ const cors = require("cors");
 const helmet = require("helmet");
 const { NODE_ENV } = require("./config");
 const app = express();
-const UsersService = require("../src/users/users-service");
-const usersRouter = require("./users/users-router");
-
+const inventoriesRouter = require("./inventories/inventories-router");
+const needsRouter = require("./needs/needs-router");
+const { CLIENT_ORIGIN } = require("./config");
 const morganOption = NODE_ENV === "production" ? "tiny" : "common";
 
 app.use(morgan(morganOption));
 app.use(helmet());
-app.use(cors());
+app.use(
+  cors({
+    origin: CLIENT_ORIGIN,
+  })
+);
 
-app.use("/users", usersRouter);
+app.use("/inventories", inventoriesRouter);
+app.use("/needs", needsRouter);
 app.get("/", (req, res) => {
   res.send("Hello, world!!!");
 });
