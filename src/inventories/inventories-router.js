@@ -2,7 +2,6 @@ const path = require("path");
 const express = require("express");
 const xss = require("xss");
 const InventoriesService = require("./inventories-service");
-
 const inventoriesRouter = express.Router();
 const jsonParser = express.json();
 
