@@ -12,9 +12,8 @@ const validateBearerToken = require("./validateBearerToken");
 const app = express();
 const inventoriesRouter = require("./inventories/inventories-router");
 const needsRouter = require("./needs/needs-router");
-const morganOption = NODE_ENV === "production" ? "tiny" : "common";
-
-app.use(morgan(morganOption));
+const morganSetting = process.env.NODE_ENV === "production" ? "tiny" : "common";
+app.use(morgan(morganSetting));
 app.use(helmet());
 app.use(cors());
 app.use(validateBearerToken);
