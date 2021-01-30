@@ -4,5 +4,5 @@ CREATE TABLE inventories (
   email TEXT NOT NULL,
   tampons INTEGER NOT NULL,
   pads INTEGER NOT NULL,
-  zipcode TEXT NOT NULL
+  inventory_location TEXT NOT NULL
 );

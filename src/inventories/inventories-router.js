@@ -11,7 +11,7 @@ const serializeInventory = (inventory) => ({
   email: xss(inventory.email),
   tampons: xss(inventory.tampons),
   pads: xss(inventory.pads),
-  zipcode: xss(inventory.zipcode),
+  inventory_location: xss(inventory.inventory_location),
 });
 
 inventoriesRouter
@@ -25,8 +25,14 @@ inventoriesRouter
       .catch(next);
   })
   .post(jsonParser, (req, res, next) => {
-    const { user_name, email, pads, tampons, zipcode } = req.body;
-    const newInventory = { user_name, email, pads, tampons, zipcode };
+    const { user_name, email, pads, tampons, inventory_location } = req.body;
+    const newInventory = {
+      user_name,
+      email,
+      pads,
+      tampons,
+      inventory_location,
+    };
 
     for (const [key, value] of Object.entries(newInventory)) {
       if (value == null) {
@@ -75,8 +81,14 @@ inventoriesRouter
       .catch(next);
   })
   .patch(jsonParser, (req, res, next) => {
-    const { user_name, email, tampons, pads, zipcode } = req.body;
-    const inventoryToUpdate = { user_name, email, tampons, pads, zipcode };
+    const { user_name, email, tampons, pads, inventory_location } = req.body;
+    const inventoryToUpdate = {
+      user_name,
+      email,
+      tampons,
+      pads,
+      inventory_location,
+    };
 
     const numberOfValues = Object.values(inventoryToUpdate).filter(Boolean)
       .length;
@@ -84,7 +96,7 @@ inventoriesRouter
       return res.status(400).json({
         error: {
           message:
-            "Request body must contain  'user_name', 'email', 'pads','tampons','zipcode'",
+            "Request body must contain  'user_name', 'email', 'pads','tampons','inventory_location'",
         },
       });
     InventoriesService.updateInventory(

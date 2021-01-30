@@ -12,7 +12,7 @@ const serializeNeed = (need) => ({
   email: xss(need.email),
   tampons: xss(need.tampons),
   pads: xss(need.pads),
-  zipcode: xss(need.zipcode),
+  need_location: xss(need.need_location),
 });
 
 needsRouter
@@ -26,8 +26,8 @@ needsRouter
       .catch(next);
   })
   .post(jsonParser, (req, res, next) => {
-    const { user_name, email, pads, tampons, zipcode } = req.body;
-    const newNeed = { user_name, email, pads, tampons, zipcode };
+    const { user_name, email, pads, tampons, need_location } = req.body;
+    const newNeed = { user_name, email, pads, tampons, need_location };
 
     for (const [key, value] of Object.entries(newNeed)) {
       if (value == null) {
@@ -70,15 +70,15 @@ needsRouter
       .catch(next);
   })
   .patch(jsonParser, (req, res, next) => {
-    const { user_name, email, tampons, pads, zipcode } = req.body;
-    const needToUpdate = { user_name, email, tampons, pads, zipcode };
+    const { user_name, email, tampons, pads, need_location } = req.body;
+    const needToUpdate = { user_name, email, tampons, pads, need_location };
 
     const numberOfValues = Object.values(needToUpdate).filter(Boolean).length;
     if (numberOfValues === 0)
       return res.status(400).json({
         error: {
           message:
-            "Request body must contain  'user_name', 'email', 'pads','tampons','zipcode'",
+            "Request body must contain  'user_name', 'email', 'pads','tampons','need_location'",
         },
       });
     NeedsService.updateNeed(req.app.get("db"), req.params.user_id, needToUpdate)

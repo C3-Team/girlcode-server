@@ -4,5 +4,5 @@ CREATE TABLE needs (
   email TEXT NOT NULL,
   tampons INTEGER NOT NULL,
   pads INTEGER NOT NULL,
-  zipcode TEXT NOT NULL
+  need_location TEXT NOT NULL
 );
