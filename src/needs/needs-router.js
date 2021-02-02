@@ -81,7 +81,7 @@ needsRouter
             "Request body must contain  'user_name', 'email', 'pads','tampons','need_location'",
         },
       });
-    NeedsService.updateNeed(req.app.get("db"), req.params.user_id, needToUpdate)
+    NeedsService.updateNeed(req.app.get("db"), req.params.need_id, needToUpdate)
       .then((numRowsAffected) => {
         res.status(204).end();
       })
