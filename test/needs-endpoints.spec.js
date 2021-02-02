@@ -67,4 +67,60 @@ describe("Needs Endpoints", function () {
       });
     });
   });
+
+  describe("POST /api/needs", () => {
+    it("creates a need, responding with 201 and the new need", function () {
+      this.retries(3);
+      const newNeed = {
+        user_name: "new user4",
+        email: "newtest@yahoo.com",
+        tampons: 8,
+        pads: 6,
+        need_location: "AZ",
+      };
+      return supertest(app)
+        .post("/api/needs")
+        .set("Authorization", `Bearer ${process.env.API_TOKEN}`)
+        .send(newNeed)
+        .expect(201)
+        .expect((res) => {
+          expect(res.body.user_name).to.eql(newNeed.user_name);
+          expect(res.body.email).to.eql(newNeed.email);
+          expect(res.body.tampons).to.equal(newNeed.tampons);
+          expect(res.body.pads).to.eql(newNeed.pads);
+          expect(res.body.need_location).to.eql(newNeed.need_location);
+          expect(res.body).to.have.property("id");
+          expect(res.headers.location).to.eql(`/needs/${res.body.id}`);
+        });
+    });
+    const requiredFields = [
+      "user_name",
+      "email",
+      "tampons",
+      "pads",
+      "need_location",
+    ];
+
+    requiredFields.forEach((field) => {
+      const newNeed = {
+        user_name: "new user",
+        email: "newneed@gmail.com",
+        tampons: 2,
+        pads: 5,
+        need_location: "CA",
+      };
+
+      it(`responds with 400 and an error message when the '${field}' is missing `, () => {
+        delete newNeed[field];
+
+        return supertest(app)
+          .post("/api/needs")
+          .set("Authorization", `Bearer ${process.env.API_TOKEN}`)
+          .send(newNeed)
+          .expect(400, {
+            error: { message: `Missing '${field}' in request body ` },
+          });
+      });
+    });
+  });
 });

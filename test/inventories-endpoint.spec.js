@@ -67,4 +67,61 @@ describe("Inventories Endpoints", function () {
       });
     });
   });
+  describe("POST /api/inventories", () => {
+    it("creates an inventory, responding with 201 and the new inventory", function () {
+      this.retries(3);
+      const newInventory = {
+        user_name: "new user4",
+        email: "newtest@yahoo.com",
+        tampons: 8,
+        pads: 6,
+        inventory_location: "AZ",
+      };
+      return supertest(app)
+        .post("/api/inventories")
+        .set("Authorization", `Bearer ${process.env.API_TOKEN}`)
+        .send(newInventory)
+        .expect(201)
+        .expect((res) => {
+          expect(res.body.user_name).to.eql(newInventory.user_name);
+          expect(res.body.email).to.eql(newInventory.email);
+          expect(res.body.tampons).to.equal(newInventory.tampons);
+          expect(res.body.pads).to.eql(newInventory.pads);
+          expect(res.body.inventory_location).to.eql(
+            newInventory.inventory_location
+          );
+          expect(res.body).to.have.property("id");
+          expect(res.headers.location).to.eql(`/inventories/${res.body.id}`);
+        });
+    });
+    const requiredFields = [
+      "user_name",
+      "email",
+      "tampons",
+      "pads",
+      "inventory_location",
+    ];
+
+    requiredFields.forEach((field) => {
+      const newInventory = {
+        user_name: "new user",
+        email: "newneed@gmail.com",
+        tampons: 2,
+        pads: 5,
+        inventory_location: "CA",
+      };
+
+      it(`responds with 400 and an error message when the '${field}' is missing`, () => {
+        delete newInventory[field];
+
+        return supertest(app)
+          .post("/api/inventories")
+          .set("Authorization", `Bearer ${process.env.API_TOKEN}`)
+          .send(newInventory)
+          .expect(400, {
+            error: { message: `Missing '${field}' in request body ` },
+          });
+      });
+    });
+  });
 });
