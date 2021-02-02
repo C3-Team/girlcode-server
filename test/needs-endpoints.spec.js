@@ -18,7 +18,7 @@ describe("Needs Endpoints", function () {
   afterEach("cleanup", () => db("needs").truncate());
 
   describe("GET /api/needs", () => {
-    context("Given no articles", () => {
+    context("Given no needs", () => {
       it("responds with 200 and an empty list", () => {
         return supertest(app)
           .get("/api/needs")
@@ -120,6 +120,39 @@ describe("Needs Endpoints", function () {
           .expect(400, {
             error: { message: `Missing '${field}' in request body ` },
           });
+      });
+    });
+  });
+  describe("DELETE /needs/:need_id", () => {
+    context("Given no needs", () => {
+      it("responds with 404", () => {
+        const needId = 123456;
+        return supertest(app)
+          .delete(`/api/needs/${needId}`)
+          .set("Authorization", `Bearer ${process.env.API_TOKEN}`)
+          .expect(404, { error: { message: "Need doesn't exist" } });
+      });
+    });
+    context("Given there are needs in the database", () => {
+      const testNeeds = makeNeedsArray();
+
+      beforeEach("insert need", () => {
+        return db.into("needs").insert(testNeeds);
+      });
+
+      it("responds with 204 and removes the need", () => {
+        const idToRemove = 2;
+        const expectedNeed = testNeeds.filter((need) => need.id !== idToRemove);
+        return supertest(app)
+          .delete(`/api/needs/${idToRemove}`)
+          .set("Authorization", `Bearer ${process.env.API_TOKEN}`)
+          .expect(204)
+          .then((res) =>
+            supertest(app)
+              .get("/api/needs")
+              .set("Authorization", `Bearer ${process.env.API_TOKEN}`)
+              .expect(expectedNeed)
+          );
       });
     });
   });

@@ -124,4 +124,39 @@ describe("Inventories Endpoints", function () {
       });
     });
   });
+  describe("DELETE /inventories/:inventory_id", () => {
+    context("Given no inventories", () => {
+      it("responds with 404", () => {
+        const inventoryId = 123456;
+        return supertest(app)
+          .delete(`/api/inventories/${inventoryId}`)
+          .set("Authorization", `Bearer ${process.env.API_TOKEN}`)
+          .expect(404, { error: { message: "Inventory doesn't exist" } });
+      });
+    });
+    context("Given there are inventories in the database", () => {
+      const testInventories = makeInventoriesArray();
+
+      beforeEach("insert inventories", () => {
+        return db.into("inventories").insert(testInventories);
+      });
+
+      it("responds with 204 and removes the inventory", () => {
+        const idToRemove = 2;
+        const expectedInventory = testInventories.filter(
+          (inventory) => inventory.id !== idToRemove
+        );
+        return supertest(app)
+          .delete(`/api/inventories/${idToRemove}`)
+          .set("Authorization", `Bearer ${process.env.API_TOKEN}`)
+          .expect(204)
+          .then((res) =>
+            supertest(app)
+              .get("/api/inventories")
+              .set("Authorization", `Bearer ${process.env.API_TOKEN}`)
+              .expect(expectedInventory)
+          );
+      });
+    });
+  });
 });
