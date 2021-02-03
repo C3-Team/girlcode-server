@@ -159,4 +159,61 @@ describe("Inventories Endpoints", function () {
       });
     });
   });
+
+  describe("PATCH /api/inventories/:inventory_id", () => {
+    context("Given no inventories", () => {
+      it("responds with 404", () => {
+        const inventoryId = 123456;
+        return supertest(app)
+          .patch(`/api/inventories/${inventoryId}`)
+          .set("Authorization", `Bearer ${process.env.API_TOKEN}`)
+          .expect(404, { error: { message: "Inventory doesn't exist" } });
+      });
+    });
+    context("Given there are needs in the database", () => {
+      const testInventories = makeInventoriesArray();
+
+      beforeEach("insert inventories", () => {
+        return db.into("inventories").insert(testInventories);
+      });
+
+      it("responds with 204 and updates the inventory", () => {
+        const idToUpdate = 2;
+        const updateInventory = {
+          user_name: "update user",
+          email: "newneedupdate@gmail.com",
+          tampons: "2",
+          pads: "5",
+          inventory_location: "TX",
+        };
+        const expectedInventory = {
+          ...testInventories[idToUpdate - 1],
+          ...updateInventory,
+        };
+        return supertest(app)
+          .patch(`/api/inventories/${idToUpdate}`)
+          .send(updateInventory)
+          .set("Authorization", `Bearer ${process.env.API_TOKEN}`)
+          .expect(204)
+          .then((res) =>
+            supertest(app)
+              .get(`/api/inventories/${idToUpdate}`)
+              .set("Authorization", `Bearer ${process.env.API_TOKEN}`)
+              .expect(expectedInventory)
+          );
+      });
+      it(`responds with 400 when no required fields supplied`, () => {
+        const idToUpdate = 2;
+        return supertest(app)
+          .patch(`/api/inventories/${idToUpdate}`)
+          .set("Authorization", `Bearer ${process.env.API_TOKEN}`)
+          .send({ irrelevantField: "foo" })
+          .expect(400, {
+            error: {
+              message: `Request body must contain  'user_name', 'email', 'pads','tampons','inventory_location'`,
+            },
+          });
+      });
+    });
+  });
 });

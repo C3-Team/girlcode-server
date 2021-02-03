@@ -156,4 +156,60 @@ describe("Needs Endpoints", function () {
       });
     });
   });
+  describe("PATCH /api/needs/:need_id", () => {
+    context("Given no needs", () => {
+      it("responds with 404", () => {
+        const needId = 123456;
+        return supertest(app)
+          .patch(`/api/needs/${needId}`)
+          .set("Authorization", `Bearer ${process.env.API_TOKEN}`)
+          .expect(404, { error: { message: "Need doesn't exist" } });
+      });
+    });
+    context("Given there are needs in the database", () => {
+      const testNeeds = makeNeedsArray();
+
+      beforeEach("insert needs", () => {
+        return db.into("needs").insert(testNeeds);
+      });
+
+      it("responds with 204 and updates the need", () => {
+        const idToUpdate = 2;
+        const updateNeed = {
+          user_name: "update user",
+          email: "newneedupdate@gmail.com",
+          tampons: "2",
+          pads: "5",
+          need_location: "TX",
+        };
+        const expectedNeed = {
+          ...testNeeds[idToUpdate - 1],
+          ...updateNeed,
+        };
+        return supertest(app)
+          .patch(`/api/needs/${idToUpdate}`)
+          .send(updateNeed)
+          .set("Authorization", `Bearer ${process.env.API_TOKEN}`)
+          .expect(204)
+          .then((res) =>
+            supertest(app)
+              .get(`/api/needs/${idToUpdate}`)
+              .set("Authorization", `Bearer ${process.env.API_TOKEN}`)
+              .expect(expectedNeed)
+          );
+      });
+      it(`responds with 400 when no required fields supplied`, () => {
+        const idToUpdate = 2;
+        return supertest(app)
+          .patch(`/api/needs/${idToUpdate}`)
+          .set("Authorization", `Bearer ${process.env.API_TOKEN}`)
+          .send({ irrelevantField: "foo" })
+          .expect(400, {
+            error: {
+              message: `Request body must contain  'user_name', 'email', 'pads','tampons','need_location'`,
+            },
+          });
+      });
+    });
+  });
 });
